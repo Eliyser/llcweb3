@@ -15,30 +15,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 	
 	<sql id="selectNotesVo">
-        select * from llc_notes
+        select id, url, status, title, author, create_time, update_time from llc_notes
     </sql>
-
-    <select id="selectById" parameterType="Integer" resultMap="NotesResult">
+	
+    <select id="selectNotesList" parameterType="Notes" resultMap="NotesResult">
+        <include refid="selectNotesVo"/>
+        <!--拼接时自动把第一个条件的and、or去掉-->
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+             <if test="url != null  and url != '' "> and url = #{url}</if>
+             <if test="status != null  and status != '' "> and status = #{status}</if>
+             <if test="title != null  and title != '' "> and title = #{title}</if>
+             <if test="author != null  and author != '' "> and author = #{author}</if>
+             <if test="createTime != null "> and create_time = #{createTime}</if>
+             <if test="updateTime != null "> and update_time = #{updateTime}</if>
+         </where>
+    </select>
+    
+    <select id="selectNotesById" parameterType="Integer" resultMap="NotesResult">
         <include refid="selectNotesVo"/>
         where id = #{id}
     </select>
-
-    <select id="selectByAuthor" resultMap="NotesResult">
-        <include refid="selectNotesVo"/>
-        where author = #{author}
-    </select>
-
-    <select id="selectByTitle" resultMap="NotesResult">
-        <include refid="selectNotesVo"/>
-        where title = #{title}
-    </select>
-
-    <select id="seleteAllNotes" resultMap="NotesResult">
-        <include refid="selectNotesVo"/>
-    </select>
-
-
-    <insert id="insertNotes">
+        
+    <insert id="insertNotes" parameterType="Notes">
         insert into llc_notes
 		<trim prefix="(" suffix=")" suffixOverrides=",">
 			<if test="id != null  ">id,</if>
@@ -54,27 +53,31 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="url != null  and url != ''  ">#{url},</if>
 			<if test="status != null  and status != ''  ">#{status},</if>
 			<if test="title != null  and title != ''  ">#{title},</if>
-            <if test="author != null  and author != ''  ">#{author},</if>
+			<if test="author != null  and author != ''  ">#{author},</if>
 			<if test="createTime != null  ">#{createTime},</if>
 			<if test="updateTime != null  ">#{updateTime},</if>
          </trim>
     </insert>
-
-    <update id="updateNotes">
+	 
+    <update id="updateNotes" parameterType="Notes">
         update llc_notes
-        <set> <!--set能自动把最后一个逗号去掉-->
-            <if test="url != null ">url = #{url},</if>
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="url != null  and url != ''  ">url = #{url},</if>
             <if test="status != null  and status != ''  ">status = #{status},</if>
             <if test="title != null  and title != ''  ">title = #{title},</if>
             <if test="author != null  and author != ''  ">author = #{author},</if>
             <if test="createTime != null  ">create_time = #{createTime},</if>
             <if test="updateTime != null  ">update_time = #{updateTime},</if>
-        </set>
+        </trim>
         where id = #{id}
     </update>
 
+	<delete id="deleteNotesById" parameterType="Integer">
+        delete from llc_notes where id = #{id}
+    </delete>
+	
     <delete id="deleteNotesByIds" parameterType="String">
-        delete from llc_notes where id in
+        delete from llc_notes where id in 
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

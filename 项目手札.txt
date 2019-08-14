@@ -1,4 +1,3 @@
-1. 删除笔记时置status为1
-2. 展示笔记时查看status是否为0
-
+备注：
 1. 没实现权限管理，师兄自己加
+2. 全文搜索支持表：llc_activity,llc_document,llc_my_files,llc_paper,llc_patent,llc_project

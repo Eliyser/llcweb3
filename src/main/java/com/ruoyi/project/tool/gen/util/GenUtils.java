@@ -42,7 +42,7 @@ public class GenUtils
             column.setAttrName(attrName);
             column.setAttrname(StringUtils.uncapitalize(attrName));
 
-            // 列的数据类型，转换成Java类型
+            // 列的数据类型，转换成Java类型；CommonMap类加载时初始化map
             String attrType = CommonMap.javaTypeMap.get(column.getDataType());
             column.setAttrType(attrType);
 

@@ -46,7 +46,8 @@ public class ExcelUtil<T>
 
     /**
      * 对excel表单指定表格索引名转换成list
-     * 
+     * 读取指定表，注入指定类对象，一行一个对象，一列一个属性，读取完一行就把对象加入list
+     * 单元格和属性必须顺序相同，一一对应
      * @param sheetName 表格索引名
      * @param input 输入流
      * @return 转换后集合
@@ -94,12 +95,17 @@ public class ExcelUtil<T>
                     fieldsMap.put(++serialNum, field);
                 }
             }
+
+            //遍历每行，一行装到一个对象里，对象装到list里
             for (int i = 1; i < rows; i++)
             {
                 // 从第2行开始取数据,默认第一行是表头.
                 Row row = sheet.getRow(i);
+                //总列数
                 int cellNum = serialNum;
                 T entity = null;
+
+                //遍历每列，一列装到一个属性里
                 for (int j = 0; j < cellNum; j++)
                 {
                     Cell cell = row.getCell(j);
@@ -114,6 +120,7 @@ public class ExcelUtil<T>
                         cell = row.getCell(j);
                     }
 
+                    //获取单元格内容（将内容当做字符串处理）
                     String c = cell.getStringCellValue();
                     if (StringUtils.isEmpty(c))
                     {
@@ -122,12 +129,16 @@ public class ExcelUtil<T>
 
                     // 如果不存在实例则新建.
                     entity = (entity == null ? clazz.newInstance() : entity);
+
                     // 从map中得到对应列的field.
                     Field field = fieldsMap.get(j + 1);
-                    // 取得类型,并根据对象类型设置值.
+                    // 取得类型,并根据属性类型设置值.
                     Class<?> fieldType = field.getType();
+
+                    //将string型的单元格内容转为field对应的类型
                     if (String.class == fieldType)
                     {
+                        //将entity对应field的属性值设为c
                         field.set(entity, String.valueOf(c));
                     }
                     else if ((Integer.TYPE == fieldType) || (Integer.class == fieldType))
@@ -159,6 +170,8 @@ public class ExcelUtil<T>
                     }
                     else if (Date.class == fieldType)
                     {
+                        //创建表时应设计好单元格格式，其中就包括类型
+                        //数值型，则认为是距离元年的秒数
                         if (cell.getCellTypeEnum() == CellType.NUMERIC)
                         {
                             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -214,7 +227,7 @@ public class ExcelUtil<T>
             workbook = new HSSFWorkbook();
             // excel2003中每个sheet中最多有65536行
             int sheetSize = 65536;
-            // 取出一共有多少个sheet.
+            // 计算一共有多少个sheet.（向上取整）
             double sheetNo = Math.ceil(list.size() / sheetSize);
             for (int index = 0; index <= sheetNo; index++)
             {
@@ -347,7 +360,9 @@ public class ExcelUtil<T>
                     }
                 }
             }
+            //设置文件名（增加随机字符串）
             String filename = encodingFilename(sheetName);
+            //下载路径：D:/profile/download/filename
             out = new FileOutputStream(getAbsoluteFile(filename));
             workbook.write(out);
             return AjaxResult.success(filename);
@@ -396,12 +411,12 @@ public class ExcelUtil<T>
      * @param endCol 结束列
      * @return 设置好的sheet.
      */
-    public static HSSFSheet setHSSFPrompt(HSSFSheet sheet, String promptTitle, String promptContent, int firstRow,
-            int endRow, int firstCol, int endCol)
+    public static HSSFSheet setHSSFPrompt(HSSFSheet sheet, String promptTitle,
+         String promptContent, int firstRow, int endRow, int firstCol, int endCol)
     {
         // 构造constraint对象
         DVConstraint constraint = DVConstraint.createCustomFormulaConstraint("DD1");
-        // 四个参数分别是：起始行、终止行、起始列、终止列
+        // 设定在哪个单元格生效，四个参数分别是：起始行、终止行、起始列、终止列
         CellRangeAddressList regions = new CellRangeAddressList(firstRow, endRow, firstCol, endCol);
         // 数据有效性对象
         HSSFDataValidation dataValidationView = new HSSFDataValidation(regions, constraint);

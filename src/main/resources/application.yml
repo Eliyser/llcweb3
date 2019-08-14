@@ -67,7 +67,7 @@ spring:
       # 热部署开关
       enabled: true
 
-# MyBatis
+# MyBatis（自动配置）
 mybatis:
     # 搜索指定包别名
     typeAliasesPackage: com.ruoyi.project

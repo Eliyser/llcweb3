@@ -102,7 +102,7 @@ public class GenServiceImpl implements IGenService
         table.setClassname(StringUtils.uncapitalize(className));
         // 列信息
         table.setColumns(GenUtils.transColums(columns));
-        // 设置主键
+        // 设置主键：第一个列即主键，因为数据库中主键都放第一列，而且前面我们是顺序读取的
         table.setPrimaryKey(table.getColumnsLast());
 
         VelocityInitializer.initVelocity();

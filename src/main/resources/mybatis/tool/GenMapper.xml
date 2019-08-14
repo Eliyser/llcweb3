@@ -30,6 +30,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<if test="tableComment != null and tableComment != ''">
 			AND table_comment like concat('%', #{tableComment}, '%')
 		</if>
+		<!--接口的扩展性，可以在mapper接口上增加包含beginTime,endTime的map入参-->
 		<if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
 			and date_format(create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
 		</if>
